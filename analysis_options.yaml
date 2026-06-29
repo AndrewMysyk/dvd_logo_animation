@@ -1,28 +1,241 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
+# ============================================================
+# Flutter Strict Linter Rules
+# analysis_options.yaml
 #
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
+# Place this file at the root of your Flutter project.
+# Requires: flutter_lints (already in flutter SDK)
+# For extra rules: add 'custom_lint' or 'very_good_analysis'
+# to your dev_dependencies in pubspec.yaml.
+# ============================================================
 
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
-linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at https://dart.dev/lints.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
-  rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+analyzer:
+  # Treat these as errors, not warnings
+  errors:
+    missing_return: error
+    dead_code: error
+    unused_import: error
+    unused_local_variable: error
+    unnecessary_null_comparison: error
+    invalid_annotation_target: ignore   # common in freezed/json_serializable
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+  # Strict mode — catches more type/nullability issues
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+  exclude:
+    - "**/*.g.dart"          # generated files (json_serializable, etc.)
+    - "**/*.freezed.dart"    # freezed generated
+    - "**/*.mocks.dart"      # mockito generated
+    - "build/**"
+
+    # ── l10n / intl generated files ──────────────────────────────────────────
+    #
+    # Flutter built-in gen-l10n (synthetic package mode, the default):
+    #   Files land in .dart_tool/flutter_gen/gen_l10n/
+    #   Pattern: app_localizations.dart + app_localizations_en.dart, etc.
+    - ".dart_tool/flutter_gen/gen_l10n/**"
+    #
+    # Flutter built-in gen-l10n (synthetic-package: false in l10n.yaml):
+    #   Files land in whatever output-dir is set to; common defaults below.
+    #   Adjust the path if your l10n.yaml uses a custom output-dir.
+    - "lib/generated/l10n/**"           # most common custom output-dir
+    - "lib/l10n/generated/**"           # alternative layout
+    #
+    # intl_utils / FlutterIntl IDE plugin (Android Studio / IntelliJ):
+    #   Generates lib/generated/l10n.dart (the barrel) and
+    #   lib/generated/intl/messages_<locale>.dart per locale.
+    - "lib/generated/l10n.dart"
+    - "lib/generated/intl/**"
+    #
+    # Catch-all for any file whose name matches the gen-l10n output pattern,
+    # regardless of directory (covers renamed output-localization-file values).
+    - "**/*_localizations.dart"
+    - "**/*_localizations_*.dart"
+
+linter:
+  rules:
+    # ─────────────────────────────────────────────
+    # STYLE & READABILITY
+    # ─────────────────────────────────────────────
+    always_declare_return_types: true         # Never omit return types
+    always_put_control_body_on_new_line: true # if (...)\n  doX() — never inline
+    always_put_required_named_parameters_first: true
+    always_specify_types: false               # dart infers well; use where ambiguous
+    always_use_package_imports: true          # No relative imports across packages
+    avoid_print: true                         # Use a logger instead of print()
+    camel_case_extensions: true
+    camel_case_types: true
+    constant_identifier_names: true           # ALL_CAPS for consts
+    directives_ordering: true                 # dart: → package: → relative: (sorted)
+    file_names: true                          # snake_case filenames
+    library_names: true
+    library_prefixes: true
+    lines_longer_than_80_chars: false         # Disabled; use formatter (dart format)
+    non_constant_identifier_names: true
+    package_names: true
+    prefer_final_fields: true                 # Immutable by default
+    prefer_final_in_for_each: true
+    prefer_final_locals: true                 # Use final unless mutation is needed
+    prefer_single_quotes: true               # Consistent quote style
+    sort_child_properties_last: true          # child/children always last in widgets
+    sort_constructors_first: true
+    sort_unnamed_constructors_first: true
+    type_annotate_public_apis: true           # Public API must have type annotations
+    unnecessary_brace_in_string_interps: true
+    unnecessary_getters_setters: true
+    unnecessary_lambdas: true
+    unnecessary_new: true
+    unnecessary_null_aware_assignments: true
+    unnecessary_null_checks: true
+    unnecessary_overrides: true
+    unnecessary_parenthesis: true
+    unnecessary_raw_strings: true
+    unnecessary_statements: true
+    unnecessary_string_escapes: true
+    unnecessary_string_interpolations: true
+    unnecessary_this: true
+    use_enums: true                           # Prefer enum over class of static consts
+
+    # ─────────────────────────────────────────────
+    # NULL SAFETY
+    # ─────────────────────────────────────────────
+    avoid_init_to_null: true                  # Don't write `int? x = null`
+    avoid_null_checks_in_equality_operators: true
+    cast_nullable_to_non_nullable: true
+    null_check_on_nullable_type_parameter: true
+
+    # ─────────────────────────────────────────────
+    # ERRORS & BUGS
+    # ─────────────────────────────────────────────
+    always_require_non_null_named_parameters: true
+    avoid_catching_errors: true               # Don't catch Error (only Exception)
+    avoid_dynamic_calls: true                 # No .call() on dynamic
+    avoid_empty_else: true
+    avoid_relative_lib_imports: true
+    avoid_returning_null_for_future: true
+    avoid_returning_null_for_void: true
+    avoid_slow_async_io: true                 # Use async versions of File I/O
+    avoid_type_to_string: true               # Don't use .toString() for type checks
+    avoid_web_libraries_in_flutter: true
+    cancel_subscriptions: true               # StreamSubscriptions must be cancelled
+    close_sinks: true                        # StreamSinks must be closed
+    collection_methods_unrelated_type: true
+    control_flow_in_finally: true
+    empty_catches: true                      # No silent catch blocks
+    empty_statements: true
+    hash_and_equals: true                    # If you override ==, override hashCode
+    invariant_booleans: true
+    iterable_contains_unrelated_type: true
+    list_remove_unrelated_type: true
+    literal_only_boolean_expressions: true
+    no_adjacent_strings_in_list: true
+    no_duplicate_case_values: true
+    no_logic_in_create_state: true           # createState() must be trivial
+    prefer_void_to_null: true
+    test_types_in_equals: true
+    throw_in_finally: true
+    unnecessary_null_comparison: true
+    unrelated_type_equality_checks: true
+    use_build_context_synchronously: true    # Don't use BuildContext after await
+    valid_regexps: true
+
+    # ─────────────────────────────────────────────
+    # DART / OOP BEST PRACTICES
+    # ─────────────────────────────────────────────
+    avoid_bool_literals_in_conditional_expressions: true
+    avoid_classes_with_only_static_members: true  # Use top-level functions instead
+    avoid_equals_and_hash_code_on_mutable_classes: true
+    avoid_field_initializers_in_const_classes: true
+    avoid_function_literals_in_foreach_calls: true
+    avoid_implementing_value_types: true
+    avoid_multiple_declarations_per_line: true
+    avoid_positional_boolean_parameters: true # Use named params for booleans
+    avoid_private_typedef_functions: true
+    avoid_redundant_argument_values: true
+    avoid_renaming_method_parameters: true
+    avoid_setters_without_getters: true
+    avoid_shadowing_type_parameters: true
+    avoid_single_cascade_in_expression_statements: true
+    avoid_types_as_parameter_names: true
+    avoid_unnecessary_containers: true       # Flutter: no wrapping Container for nothing
+    avoid_unused_constructor_parameters: true
+    avoid_void_async: true                   # async functions should return Future
+    conditional_uri_does_not_exist: true
+    depend_on_referenced_packages: true
+    do_not_use_environment: true
+    eol_at_end_of_file: true
+    exhaustive_cases: true
+    implementation_imports: true
+    leading_newlines_in_multiline_strings: true
+    missing_whitespace_between_adjacent_strings: true
+    no_default_cases: true                   # Force exhaustive switch on enums
+    no_runtimeType_toString: true
+    noop_primitive_operations: true
+    omit_local_variable_types: false         # Be explicit — helps readability
+    one_member_abstracts: true               # Prefer typedef over single-method abstract class
+    only_throw_errors: true                  # Throw Error/Exception, not strings
+    overridden_fields: true
+    package_api_docs: false                  # Optional: set true for library packages
+    parameter_assignments: true              # Don't reassign parameters
+    prefer_asserts_in_initializer_lists: true
+    prefer_asserts_with_message: true        # assert(x, 'reason') always
+    prefer_collection_literals: true         # [] over List(), {} over Map()
+    prefer_conditional_assignment: true
+    prefer_const_constructors: true          # Use const wherever possible
+    prefer_const_constructors_in_immutables: true
+    prefer_const_declarations: true
+    prefer_const_literals_to_create_immutables: true
+    prefer_constructors_over_static_methods: true
+    prefer_contains: true
+    prefer_expression_function_bodies: true  # => over { return x; }
+    prefer_foreach: true
+    prefer_function_declarations_over_variables: true
+    prefer_generic_function_type_aliases: true
+    prefer_if_elements_to_conditional_expressions: true
+    prefer_if_null_operators: true           # ?? over x != null ? x : y
+    prefer_initializing_formals: true        # this.x in constructor instead of x = x
+    prefer_inlined_adds: true
+    prefer_int_literals_over_double: true    # 1 not 1.0
+    prefer_interpolation_to_compose_strings: true
+    prefer_is_empty: true                    # .isEmpty over .length == 0
+    prefer_is_not_empty: true
+    prefer_is_not_operator: true             # is! over !(x is)
+    prefer_iterable_whereType: true
+    prefer_mixin: true                       # mixin over abstract class as mixin
+    prefer_null_aware_method_calls: true
+    prefer_null_aware_operators: true
+    prefer_spread_collections: true
+    prefer_typing_uninitialized_variables: true
+    recursive_getters: true
+    sized_box_for_whitespace: true           # SizedBox over Container for spacing
+    sized_box_shrink_expand: true
+    slash_for_doc_comments: true             # /// not /** */
+    tighten_type_of_initializing_formals: true
+    type_init_formals: true
+    unawaited_futures: true                  # All Futures must be awaited or unawaited()
+    unnecessary_await_in_return: true
+    unnecessary_constructor_name: true
+    unnecessary_final: false                 # Let prefer_final_locals handle this
+    unnecessary_late: true
+    unnecessary_nullable_for_final_variable_declarations: true
+    use_colored_box: true                    # ColoredBox over Container(color: ...)
+    use_decorated_box: true
+    use_full_hex_values_for_flutter_colors: true   # 0xFF... not 0x...
+    use_function_type_syntax_for_parameters: true  # void Function() not VoidCallback typedef
+    use_if_null_to_convert_nulls_to_bools: true
+    use_is_even_rather_than_modulo: true
+    use_key_in_widget_constructors: true     # Always pass Key? key in widgets
+    use_late_for_private_fields_and_variables: true
+    use_named_constants: true
+    use_raw_strings: true
+    use_rethrow_when_possible: true          # rethrow over throw e
+    use_setters_to_change_properties: true
+    use_string_buffers: true
+    use_super_parameters: true              # super.key instead of key: key
+    use_test_throws_matchers: true
+    use_to_and_as_if_applicable: true
+    void_checks: true
