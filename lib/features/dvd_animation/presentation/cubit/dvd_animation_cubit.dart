@@ -10,9 +10,11 @@ typedef TickerFactory = Stream<void> Function();
 
 @injectable
 final class DvdAnimationCubit extends Cubit<DvdAnimationState> {
-  DvdAnimationCubit(this._coordinator, {@ignoreParam TickerFactory? tickerFactory})
-      : _tickerFactory = tickerFactory ?? _defaultTicker,
-        super(DvdAnimationState.initial());
+  DvdAnimationCubit(
+    this._coordinator, {
+    @ignoreParam TickerFactory? tickerFactory,
+  }) : _tickerFactory = tickerFactory ?? _defaultTicker,
+       super(DvdAnimationState.initial());
 
   static Stream<void> _defaultTicker() =>
       Stream<void>.periodic(const Duration(milliseconds: 16));

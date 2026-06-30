@@ -16,15 +16,14 @@ class DvdAnimationCoordinator {
     required Size screenSize,
     required Size logoSize,
     required int colorIndex,
-  }) =>
-      DvdLogoEntity(
-        position: Offset(
-          (screenSize.width - logoSize.width) / 2,
-          (screenSize.height - logoSize.height) / 2,
-        ),
-        velocity: const Offset(_speed, -_speed),
-        color: _colorRepository.colorAt(colorIndex),
-      );
+  }) => DvdLogoEntity(
+    position: Offset(
+      (screenSize.width - logoSize.width) / 2,
+      (screenSize.height - logoSize.height) / 2,
+    ),
+    velocity: const Offset(_speed, -_speed),
+    color: _colorRepository.colorAt(colorIndex),
+  );
 
   ({DvdLogoEntity logo, int colorIndex}) tick({
     required DvdLogoEntity current,
@@ -64,7 +63,9 @@ class DvdAnimationCoordinator {
       logo: current.copyWith(
         position: Offset(x, y),
         velocity: Offset(dx, dy),
-        color: bounced ? _colorRepository.colorAt(newColorIndex) : current.color,
+        color: bounced
+            ? _colorRepository.colorAt(newColorIndex)
+            : current.color,
       ),
       colorIndex: newColorIndex,
     );
