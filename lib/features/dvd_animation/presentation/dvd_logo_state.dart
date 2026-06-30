@@ -1,7 +1,7 @@
 import 'dart:ui';
 
-final class DvdLogoEntity {
-  const DvdLogoEntity({
+final class DvdLogoState {
+  const DvdLogoState({
     required this.position,
     required this.velocity,
     required this.color,
@@ -11,8 +11,8 @@ final class DvdLogoEntity {
   final Offset velocity;
   final Color color;
 
-  DvdLogoEntity copyWith({Offset? position, Offset? velocity, Color? color}) =>
-      DvdLogoEntity(
+  DvdLogoState copyWith({Offset? position, Offset? velocity, Color? color}) =>
+      DvdLogoState(
         position: position ?? this.position,
         velocity: velocity ?? this.velocity,
         color: color ?? this.color,

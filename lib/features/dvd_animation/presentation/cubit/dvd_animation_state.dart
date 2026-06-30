@@ -1,31 +1,24 @@
-import 'dart:ui';
-
-import 'package:dvd_logo_animation/features/dvd_animation/domain/entities/dvd_logo_entity.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart' show Colors;
 
 final class DvdAnimationState extends Equatable {
-  const DvdAnimationState({required this.logo});
+  const DvdAnimationState({
+    required this.isPlaying,
+    required this.playbackSpeed,
+  });
 
-  factory DvdAnimationState.initial() => const DvdAnimationState(
-    logo: DvdLogoEntity(
-      position: Offset.zero,
-      velocity: Offset.zero,
-      color: Colors.red,
-    ),
-  );
+  const DvdAnimationState.initial()
+      : isPlaying = false,
+        playbackSpeed = 1.0;
 
-  final DvdLogoEntity logo;
+  final bool isPlaying;
+  final double playbackSpeed;
 
-  DvdAnimationState copyWith({DvdLogoEntity? logo}) =>
-      DvdAnimationState(logo: logo ?? this.logo);
+  DvdAnimationState copyWith({bool? isPlaying, double? playbackSpeed}) =>
+      DvdAnimationState(
+        isPlaying: isPlaying ?? this.isPlaying,
+        playbackSpeed: playbackSpeed ?? this.playbackSpeed,
+      );
 
   @override
-  List<Object> get props => [
-    logo.position.dx,
-    logo.position.dy,
-    logo.velocity.dx,
-    logo.velocity.dy,
-    logo.color,
-  ];
+  List<Object> get props => [isPlaying, playbackSpeed];
 }

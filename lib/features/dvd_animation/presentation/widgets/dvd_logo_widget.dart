@@ -1,4 +1,4 @@
-import 'package:dvd_logo_animation/features/dvd_animation/domain/entities/dvd_logo_config.dart';
+import 'package:dvd_logo_animation/features/dvd_animation/presentation/dvd_logo_config.dart';
 import 'package:dvd_logo_animation/gen/assets.gen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';

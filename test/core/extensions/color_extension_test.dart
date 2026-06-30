@@ -46,9 +46,9 @@ void main() {
           blueMin: 32,
           blueMax: 32,
         );
-        final r = (color.value >> 16) & 0xFF;
-        final g = (color.value >> 8) & 0xFF;
-        final b = color.value & 0xFF;
+        final r = (color.r * 255).round();
+        final g = (color.g * 255).round();
+        final b = (color.b * 255).round();
         expect(r, 128);
         expect(g, 64);
         expect(b, 32);

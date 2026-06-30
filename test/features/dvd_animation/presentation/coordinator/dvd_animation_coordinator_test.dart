@@ -1,43 +1,40 @@
 import 'dart:ui';
 
-import 'package:dvd_logo_animation/features/dvd_animation/domain/coordinator/dvd_animation_coordinator.dart';
-import 'package:dvd_logo_animation/features/dvd_animation/domain/entities/dvd_logo_entity.dart';
+import 'package:dvd_logo_animation/features/dvd_animation/presentation/coordinator/dvd_animation_coordinator.dart';
+import 'package:dvd_logo_animation/features/dvd_animation/presentation/dvd_logo_state.dart';
 import 'package:flutter/material.dart' show Colors;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('DvdAnimationCoordinator', () {
+    // objectSize: Size(2,2) keeps test math simple without affecting physics logic
     late DvdAnimationCoordinator coordinator;
 
     const fixedColor = Colors.blue;
 
     setUp(() {
-      coordinator = DvdAnimationCoordinator(colorFactory: () => fixedColor);
+      coordinator = DvdAnimationCoordinator(
+        colorFactory: () => fixedColor,
+        objectSize: const Size(2, 2),
+      );
     });
 
-    group('initialLogo', () {
+    group('initial', () {
       test('should center the logo on screen with initial velocity', () {
         // Arrange
         const screenSize = Size(400, 800);
-        const logoSize = Size(160, 72);
 
         // Act
-        final logo = coordinator.initialLogo(
-          screenSize: screenSize,
-          logoSize: logoSize,
-        );
+        final logo = coordinator.initial(screenSize: screenSize);
 
         // Assert
-        expect(logo.position, const Offset((400 - 160) / 2, (800 - 72) / 2));
+        expect(logo.position, const Offset((400 - 2) / 2, (800 - 2) / 2));
         expect(logo.velocity, const Offset(1, -1));
       });
 
       test('should use color from the color factory', () {
         // Act
-        final logo = coordinator.initialLogo(
-          screenSize: const Size(400, 800),
-          logoSize: const Size(160, 72),
-        );
+        final logo = coordinator.initial(screenSize: const Size(400, 800));
 
         // Assert
         expect(logo.color, fixedColor);
@@ -45,15 +42,14 @@ void main() {
     });
 
     group('tick', () {
-      DvdLogoEntity makeLogo({
+      DvdLogoState makeLogo({
         required Offset position,
         required Offset velocity,
-      }) =>
-          DvdLogoEntity(
-            position: position,
-            velocity: velocity,
-            color: Colors.red,
-          );
+      }) => DvdLogoState(
+        position: position,
+        velocity: velocity,
+        color: Colors.red,
+      );
 
       test('should advance position by velocity when no wall is hit', () {
         // Arrange — Screen(20,20), Logo(2,2): center=(9,9), vel=(1,-1)
@@ -66,7 +62,6 @@ void main() {
         final result = coordinator.tick(
           current: logo,
           screenSize: const Size(20, 20),
-          logoSize: const Size(2, 2),
         );
 
         // Assert
@@ -86,7 +81,6 @@ void main() {
         final result = coordinator.tick(
           current: logo,
           screenSize: const Size(4, 20),
-          logoSize: const Size(2, 2),
         );
 
         // Assert
@@ -106,7 +100,6 @@ void main() {
         final result = coordinator.tick(
           current: logo,
           screenSize: const Size(20, 20),
-          logoSize: const Size(2, 2),
         );
 
         // Assert
@@ -126,7 +119,6 @@ void main() {
         final result = coordinator.tick(
           current: logo,
           screenSize: const Size(20, 3),
-          logoSize: const Size(2, 2),
         );
 
         // Assert
@@ -146,7 +138,6 @@ void main() {
         final result = coordinator.tick(
           current: logo,
           screenSize: const Size(20, 3),
-          logoSize: const Size(2, 2),
         );
 
         // Assert
@@ -163,6 +154,7 @@ void main() {
             callCount++;
             return fixedColor;
           },
+          objectSize: const Size(2, 2),
         );
         final logo = makeLogo(
           position: const Offset(1, 1),
@@ -170,11 +162,7 @@ void main() {
         );
 
         // Act
-        countingCoordinator.tick(
-          current: logo,
-          screenSize: const Size(4, 4),
-          logoSize: const Size(2, 2),
-        );
+        countingCoordinator.tick(current: logo, screenSize: const Size(4, 4));
 
         // Assert
         expect(callCount, 1);

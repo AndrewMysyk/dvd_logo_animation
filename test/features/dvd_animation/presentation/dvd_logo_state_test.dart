@@ -1,10 +1,10 @@
-import 'package:dvd_logo_animation/features/dvd_animation/domain/entities/dvd_logo_entity.dart';
+import 'package:dvd_logo_animation/features/dvd_animation/presentation/dvd_logo_state.dart';
 import 'package:flutter/material.dart' show Colors;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('DvdLogoEntity', () {
-    const entity = DvdLogoEntity(
+  group('DvdLogoState', () {
+    const entity = DvdLogoState(
       position: Offset(10, 20),
       velocity: Offset(1, -1),
       color: Colors.red,

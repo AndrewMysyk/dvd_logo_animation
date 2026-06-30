@@ -1,92 +1,57 @@
-import 'package:dvd_logo_animation/features/dvd_animation/domain/entities/dvd_logo_entity.dart';
 import 'package:dvd_logo_animation/features/dvd_animation/presentation/cubit/dvd_animation_state.dart';
-import 'package:flutter/material.dart' show Colors;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('DvdAnimationState', () {
-    const logo = DvdLogoEntity(
-      position: Offset(10, 20),
-      velocity: Offset(1, -1),
-      color: Colors.red,
-    );
-    const state = DvdAnimationState(logo: logo);
-
     group('initial', () {
-      test('should have zero position and velocity', () {
-        // Act
-        final initial = DvdAnimationState.initial();
-        // Assert
-        expect(initial.logo.position, Offset.zero);
-        expect(initial.logo.velocity, Offset.zero);
+      test('should have isPlaying false', () {
+        const state = DvdAnimationState.initial();
+        expect(state.isPlaying, false);
       });
 
-      test('should have red as the initial color', () {
-        // Act
-        final initial = DvdAnimationState.initial();
-        // Assert
-        expect(initial.logo.color, Colors.red);
+      test('should have playbackSpeed of 1.0', () {
+        const state = DvdAnimationState.initial();
+        expect(state.playbackSpeed, 1.0);
       });
     });
 
     group('copyWith', () {
-      test('should return copy with updated logo', () {
-        // Arrange
-        const newLogo = DvdLogoEntity(
-          position: Offset(50, 60),
-          velocity: Offset(-1, 1),
-          color: Colors.blue,
-        );
-        // Act
-        final result = state.copyWith(logo: newLogo);
-        // Assert
-        expect(result.logo.position, newLogo.position);
-        expect(result.logo.velocity, newLogo.velocity);
-        expect(result.logo.color, newLogo.color);
+      const state = DvdAnimationState(isPlaying: false, playbackSpeed: 1.0);
+
+      test('should return copy with updated isPlaying', () {
+        final result = state.copyWith(isPlaying: true);
+        expect(result.isPlaying, true);
+        expect(result.playbackSpeed, state.playbackSpeed);
       });
 
-      test('should retain original logo when no argument provided', () {
-        // Act
+      test('should return copy with updated playbackSpeed', () {
+        final result = state.copyWith(playbackSpeed: 2.0);
+        expect(result.playbackSpeed, 2.0);
+        expect(result.isPlaying, state.isPlaying);
+      });
+
+      test('should retain original values when no arguments provided', () {
         final result = state.copyWith();
-        // Assert
-        expect(result.logo.position, logo.position);
-        expect(result.logo.velocity, logo.velocity);
-        expect(result.logo.color, logo.color);
+        expect(result.isPlaying, state.isPlaying);
+        expect(result.playbackSpeed, state.playbackSpeed);
       });
     });
 
     group('Equatable', () {
-      test('should be equal when all logo values are the same', () {
-        // Arrange
-        const other = DvdAnimationState(logo: logo);
-        // Assert
+      const state = DvdAnimationState(isPlaying: true, playbackSpeed: 1.5);
+
+      test('should be equal when all values are the same', () {
+        const other = DvdAnimationState(isPlaying: true, playbackSpeed: 1.5);
         expect(state, equals(other));
       });
 
-      test('should not be equal when position differs', () {
-        // Arrange
-        final other = DvdAnimationState(
-          logo: logo.copyWith(position: const Offset(99, 99)),
-        );
-        // Assert
+      test('should not be equal when isPlaying differs', () {
+        const other = DvdAnimationState(isPlaying: false, playbackSpeed: 1.5);
         expect(state, isNot(equals(other)));
       });
 
-      test('should not be equal when velocity differs', () {
-        // Arrange
-        final other = DvdAnimationState(
-          logo: logo.copyWith(velocity: const Offset(5, 5)),
-        );
-        // Assert
-        expect(state, isNot(equals(other)));
-      });
-
-      test('should not be equal when color differs', () {
-        // Arrange
-        final other = DvdAnimationState(
-          logo: logo.copyWith(color: Colors.blue),
-        );
-        // Assert
+      test('should not be equal when playbackSpeed differs', () {
+        const other = DvdAnimationState(isPlaying: true, playbackSpeed: 2.0);
         expect(state, isNot(equals(other)));
       });
     });

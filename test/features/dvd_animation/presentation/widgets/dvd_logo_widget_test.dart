@@ -1,4 +1,4 @@
-import 'package:dvd_logo_animation/features/dvd_animation/domain/entities/dvd_logo_config.dart';
+import 'package:dvd_logo_animation/features/dvd_animation/presentation/dvd_logo_config.dart';
 import 'package:dvd_logo_animation/features/dvd_animation/presentation/widgets/dvd_logo_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -22,10 +22,7 @@ void main() {
       // Assert
       expect(find.byType(DvdLogoWidget), findsOneWidget);
       final svg = tester.widget<SvgPicture>(find.byType(SvgPicture));
-      expect(
-        svg.colorFilter,
-        const ColorFilter.mode(color, BlendMode.srcIn),
-      );
+      expect(svg.colorFilter, const ColorFilter.mode(color, BlendMode.srcIn));
     });
 
     testWidgets('should render with correct dimensions', (tester) async {
@@ -44,8 +41,14 @@ void main() {
       final renderBox = tester.renderObject<RenderBox>(
         find.byType(DvdLogoWidget),
       );
-      expect(renderBox.size.width, moreOrLessEquals(DvdLogoConfig.width, epsilon: 1));
-      expect(renderBox.size.height, moreOrLessEquals(DvdLogoConfig.height, epsilon: 1));
+      expect(
+        renderBox.size.width,
+        moreOrLessEquals(DvdLogoConfig.width, epsilon: 1),
+      );
+      expect(
+        renderBox.size.height,
+        moreOrLessEquals(DvdLogoConfig.height, epsilon: 1),
+      );
     });
   });
 }
