@@ -7,11 +7,19 @@ import 'package:dvd_logo_animation/features/dvd_animation/presentation/cubit/dvd
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+typedef TickerFactory = Stream<void> Function();
+
 @injectable
 final class DvdAnimationCubit extends Cubit<DvdAnimationState> {
-  DvdAnimationCubit(this._colorRepository) : super(DvdAnimationState.initial());
+  DvdAnimationCubit(this._colorRepository, {TickerFactory? tickerFactory})
+      : _tickerFactory = tickerFactory ?? _defaultTicker,
+        super(DvdAnimationState.initial());
+
+  static Stream<void> _defaultTicker() =>
+      Stream<void>.periodic(const Duration(milliseconds: 16));
 
   final DvdColorRepository _colorRepository;
+  final TickerFactory _tickerFactory;
 
   static const double _speed = 1;
 
@@ -43,9 +51,7 @@ final class DvdAnimationCubit extends Cubit<DvdAnimationState> {
       ),
     );
 
-    _tickerSubscription = Stream<void>.periodic(
-      const Duration(milliseconds: 16),
-    ).listen((_) => _tick());
+    _tickerSubscription = _tickerFactory().listen((_) => _tick());
   }
 
   void _tick() {
