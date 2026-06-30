@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:dvd_logo_animation/features/dvd_animation/domain/entities/dvd_logo_entity.dart';
-import 'package:dvd_logo_animation/features/dvd_animation/domain/repositories/dvd_color_repository.dart';
+import 'package:dvd_logo_animation/features/dvd_animation/domain/coordinator/dvd_animation_coordinator.dart';
 import 'package:dvd_logo_animation/features/dvd_animation/presentation/cubit/dvd_animation_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -11,17 +10,15 @@ typedef TickerFactory = Stream<void> Function();
 
 @injectable
 final class DvdAnimationCubit extends Cubit<DvdAnimationState> {
-  DvdAnimationCubit(this._colorRepository, {TickerFactory? tickerFactory})
+  DvdAnimationCubit(this._coordinator, {@ignoreParam TickerFactory? tickerFactory})
       : _tickerFactory = tickerFactory ?? _defaultTicker,
         super(DvdAnimationState.initial());
 
   static Stream<void> _defaultTicker() =>
       Stream<void>.periodic(const Duration(milliseconds: 16));
 
-  final DvdColorRepository _colorRepository;
+  final DvdAnimationCoordinator _coordinator;
   final TickerFactory _tickerFactory;
-
-  static const double _speed = 1;
 
   Size _screenSize = Size.zero;
   Size _logoSize = Size.zero;
@@ -40,13 +37,10 @@ final class DvdAnimationCubit extends Cubit<DvdAnimationState> {
 
     emit(
       state.copyWith(
-        logo: DvdLogoEntity(
-          position: Offset(
-            (_screenSize.width - _logoSize.width) / 2,
-            (_screenSize.height - _logoSize.height) / 2,
-          ),
-          velocity: const Offset(_speed, -_speed),
-          color: _colorRepository.colorAt(_colorIndex),
+        logo: _coordinator.initialLogo(
+          screenSize: screenSize,
+          logoSize: logoSize,
+          colorIndex: _colorIndex,
         ),
       ),
     );
@@ -55,50 +49,19 @@ final class DvdAnimationCubit extends Cubit<DvdAnimationState> {
   }
 
   void _tick() {
-    final logo = state.logo;
-    var dx = logo.velocity.dx;
-    var dy = logo.velocity.dy;
-    var x = logo.position.dx + dx;
-    var y = logo.position.dy + dy;
-    var bounced = false;
-
-    if (x <= 0) {
-      x = 0;
-      dx = dx.abs();
-      bounced = true;
-    } else if (x >= _screenSize.width - _logoSize.width) {
-      x = _screenSize.width - _logoSize.width;
-      dx = -dx.abs();
-      bounced = true;
-    }
-
-    if (y <= 0) {
-      y = 0;
-      dy = dy.abs();
-      bounced = true;
-    } else if (y >= _screenSize.height - _logoSize.height) {
-      y = _screenSize.height - _logoSize.height;
-      dy = -dy.abs();
-      bounced = true;
-    }
-
-    if (bounced) {
-      _colorIndex++;
-    }
+    final result = _coordinator.tick(
+      current: state.logo,
+      screenSize: _screenSize,
+      logoSize: _logoSize,
+      colorIndex: _colorIndex,
+    );
+    _colorIndex = result.colorIndex;
 
     if (isClosed) {
       return;
     }
 
-    emit(
-      state.copyWith(
-        logo: logo.copyWith(
-          position: Offset(x, y),
-          velocity: Offset(dx, dy),
-          color: bounced ? _colorRepository.colorAt(_colorIndex) : logo.color,
-        ),
-      ),
-    );
+    emit(state.copyWith(logo: result.logo));
   }
 
   @override
