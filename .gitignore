@@ -31,6 +31,10 @@ analysis_benchmark.json
 # packages file containing multi-root paths
 .packages.generated
 
+# Generated files
+lib/core/di/injection.config.dart
+lib/gen/assets.gen.dart
+
 # Flutter/Dart/Pub related
 **/doc/api/
 .dart_tool/

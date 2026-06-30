@@ -1,6 +1,6 @@
 {
-    "name": "dvd_logo_animation",
-    "short_name": "dvd_logo_animation",
+    "name": "DVD Logo Animation",
+    "short_name": "DVD Logo",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
