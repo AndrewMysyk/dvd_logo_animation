@@ -33,6 +33,7 @@ analysis_benchmark.json
 
 # Generated files
 lib/core/di/injection.config.dart
+lib/gen/assets.gen.dart
 
 # Flutter/Dart/Pub related
 **/doc/api/
