@@ -1,35 +1,39 @@
 import 'dart:ui';
 
+import 'package:dvd_logo_animation/core/extensions/color_extension.dart';
 import 'package:dvd_logo_animation/features/dvd_animation/domain/entities/dvd_logo_entity.dart';
-import 'package:dvd_logo_animation/features/dvd_animation/domain/repositories/dvd_color_repository.dart';
 import 'package:injectable/injectable.dart';
+
+typedef ColorFactory = Color Function();
 
 @lazySingleton
 class DvdAnimationCoordinator {
-  const DvdAnimationCoordinator(this._colorRepository);
+  DvdAnimationCoordinator({@ignoreParam ColorFactory? colorFactory})
+      : _colorFactory = colorFactory ?? _randomColor;
 
-  final DvdColorRepository _colorRepository;
+  static Color _randomColor() => ColorX.random();
+
+  final ColorFactory _colorFactory;
 
   static const double _speed = 1.0;
 
   DvdLogoEntity initialLogo({
     required Size screenSize,
     required Size logoSize,
-    required int colorIndex,
-  }) => DvdLogoEntity(
-    position: Offset(
-      (screenSize.width - logoSize.width) / 2,
-      (screenSize.height - logoSize.height) / 2,
-    ),
-    velocity: const Offset(_speed, -_speed),
-    color: _colorRepository.colorAt(colorIndex),
-  );
+  }) =>
+      DvdLogoEntity(
+        position: Offset(
+          (screenSize.width - logoSize.width) / 2,
+          (screenSize.height - logoSize.height) / 2,
+        ),
+        velocity: const Offset(_speed, -_speed),
+        color: _colorFactory(),
+      );
 
-  ({DvdLogoEntity logo, int colorIndex}) tick({
+  DvdLogoEntity tick({
     required DvdLogoEntity current,
     required Size screenSize,
     required Size logoSize,
-    required int colorIndex,
   }) {
     var dx = current.velocity.dx;
     var dy = current.velocity.dy;
@@ -57,17 +61,10 @@ class DvdAnimationCoordinator {
       bounced = true;
     }
 
-    final newColorIndex = bounced ? colorIndex + 1 : colorIndex;
-
-    return (
-      logo: current.copyWith(
-        position: Offset(x, y),
-        velocity: Offset(dx, dy),
-        color: bounced
-            ? _colorRepository.colorAt(newColorIndex)
-            : current.color,
-      ),
-      colorIndex: newColorIndex,
+    return current.copyWith(
+      position: Offset(x, y),
+      velocity: Offset(dx, dy),
+      color: bounced ? _colorFactory() : current.color,
     );
   }
 }

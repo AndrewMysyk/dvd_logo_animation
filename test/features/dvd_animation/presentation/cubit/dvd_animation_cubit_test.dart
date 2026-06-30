@@ -47,7 +47,7 @@ void main() {
     const recenteredLogo = DvdLogoEntity(
       position: Offset(20, 164),
       velocity: Offset(1, -1),
-      color: Colors.red,
+      color: Colors.blue,
     );
 
     setUp(() {
@@ -58,7 +58,6 @@ void main() {
         () => mockCoordinator.initialLogo(
           screenSize: any(named: 'screenSize'),
           logoSize: any(named: 'logoSize'),
-          colorIndex: any(named: 'colorIndex'),
         ),
       ).thenReturn(initialLogo);
 
@@ -67,9 +66,8 @@ void main() {
           current: any(named: 'current'),
           screenSize: any(named: 'screenSize'),
           logoSize: any(named: 'logoSize'),
-          colorIndex: any(named: 'colorIndex'),
         ),
-      ).thenReturn((logo: tickedLogo, colorIndex: 0));
+      ).thenReturn(tickedLogo);
     });
 
     tearDown(() async {
@@ -83,7 +81,7 @@ void main() {
 
     group('start', () {
       blocTest<DvdAnimationCubit, DvdAnimationState>(
-        'should emit logo from coordinator with initial color index 0',
+        'should emit logo from coordinator',
         build: buildCubit,
         act: (cubit) => cubit.start(screenSize, logoSize),
         wait: Duration.zero,
@@ -91,23 +89,19 @@ void main() {
           () => mockCoordinator.initialLogo(
             screenSize: screenSize,
             logoSize: logoSize,
-            colorIndex: 0,
           ),
         ).called(1),
-        expect: () => [
-          const DvdAnimationState(logo: initialLogo),
-        ],
+        expect: () => [const DvdAnimationState(logo: initialLogo)],
       );
 
       blocTest<DvdAnimationCubit, DvdAnimationState>(
-        'should reset color index and re-emit when called with a new screen size',
+        'should re-emit when called with a new screen size',
         build: buildCubit,
         setUp: () {
           when(
             () => mockCoordinator.initialLogo(
               screenSize: const Size(200, 400),
               logoSize: any(named: 'logoSize'),
-              colorIndex: any(named: 'colorIndex'),
             ),
           ).thenReturn(recenteredLogo);
         },
@@ -121,7 +115,6 @@ void main() {
           () => mockCoordinator.initialLogo(
             screenSize: const Size(200, 400),
             logoSize: logoSize,
-            colorIndex: 0,
           ),
         ).called(1),
         expect: () => [const DvdAnimationState(logo: recenteredLogo)],
@@ -142,58 +135,9 @@ void main() {
             current: initialLogo,
             screenSize: screenSize,
             logoSize: logoSize,
-            colorIndex: 0,
           ),
         ).called(1),
         expect: () => [const DvdAnimationState(logo: tickedLogo)],
-      );
-
-      blocTest<DvdAnimationCubit, DvdAnimationState>(
-        'should update color index from coordinator result between ticks',
-        build: buildCubit,
-        setUp: () {
-          when(
-            () => mockCoordinator.tick(
-              current: any(named: 'current'),
-              screenSize: any(named: 'screenSize'),
-              logoSize: any(named: 'logoSize'),
-              colorIndex: 0,
-            ),
-          ).thenReturn((logo: tickedLogo, colorIndex: 1));
-
-          when(
-            () => mockCoordinator.tick(
-              current: any(named: 'current'),
-              screenSize: any(named: 'screenSize'),
-              logoSize: any(named: 'logoSize'),
-              colorIndex: 1,
-            ),
-          ).thenReturn((logo: tickedLogo, colorIndex: 1));
-        },
-        act: (cubit) async {
-          await cubit.start(screenSize, logoSize);
-          tickController.add(null); // colorIndex: 0 → 1
-          tickController.add(null); // colorIndex: 1 → 1
-        },
-        skip: 1,
-        verify: (_) {
-          verify(
-            () => mockCoordinator.tick(
-              current: any(named: 'current'),
-              screenSize: any(named: 'screenSize'),
-              logoSize: any(named: 'logoSize'),
-              colorIndex: 0,
-            ),
-          ).called(1);
-          verify(
-            () => mockCoordinator.tick(
-              current: any(named: 'current'),
-              screenSize: any(named: 'screenSize'),
-              logoSize: any(named: 'logoSize'),
-              colorIndex: 1,
-            ),
-          ).called(1);
-        },
       );
     });
 
